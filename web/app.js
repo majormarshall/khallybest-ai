@@ -699,10 +699,44 @@ function initWakeWord() {
 function handleWakeDetected() {
   if (isListening) return;
   try { wakeRecognition?.stop(); } catch(e) {}
-  // Flash the orb
+
+  // ── Voice biometrics check ──────────────────────────────
+  if (typeof VoiceBiometrics !== 'undefined' && VoiceBiometrics.isEnrolled()) {
+    // Run verification asynchronously — give mic 400ms to release
+    setTimeout(async () => {
+      const ok = await VoiceBiometrics.verify();
+      if (!ok) {
+        // Voice does not match — flash red, do NOT activate
+        orbCore.classList.add('thinking');
+        setTimeout(() => { if (!isListening) orbCore.classList.remove('thinking'); }, 800);
+        try {
+          const ctx = new AudioContext();
+          const osc = ctx.createOscillator(); const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.frequency.value = 220; gain.gain.setValueAtTime(0.10, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+          osc.start(); osc.stop(ctx.currentTime + 0.3);
+        } catch(e) {}
+        console.log('[VoiceBiometrics] Voice did not match. Wake rejected.');
+        // Resume wake listener
+        if (wakeActive) setTimeout(() => { try { wakeRecognition?.start(); } catch(e){} }, 900);
+        return;
+      }
+      // Voice matched — proceed normally
+      _activateAfterWake();
+    }, 400);
+  } else {
+    // No enrollment — skip verification
+    _activateAfterWake();
+  }
+}
+
+function _activateAfterWake() {
+  // Flash the orb green
   orbCore.classList.add('listening');
   setTimeout(() => { if (!isListening) orbCore.classList.remove('listening'); }, 400);
-  // Beep — confirms wake detection
+  // Confirmation beep
   try {
     const ctx = new AudioContext();
     const osc = ctx.createOscillator(); const gain = ctx.createGain();
@@ -711,8 +745,6 @@ function handleWakeDetected() {
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
     osc.start(); osc.stop(ctx.currentTime + 0.25);
   } catch(e) {}
-  // Wait 600ms — gives the wake SR enough time to fully release the mic
-  // before startListening() claims it (was 350ms — caused mic conflict)
   setTimeout(() => startListening(), 600);
 }
 
