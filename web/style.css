@@ -876,3 +876,414 @@ body { min-height:100vh; height:100vh; overflow:hidden; background:var(--bg); co
 .session-date { font-size:11px; color:var(--muted); margin-top:3px; }
 .session-actions { display:flex; gap:6px; flex-shrink:0; }
 
+
+/* ============================================================
+   KHALLYBEST v5.0 — PREMIUM RESTYLE
+   New design system: deeper dark, glassmorphism, rich accents
+   ============================================================ */
+
+/* ── CSS Reset additions ────────────────────────────────────── */
+* { box-sizing: border-box; }
+:root {
+  --bg:          #07080f;
+  --bg2:         #0d1120;
+  --bg3:         #111827;
+  --surface:     rgba(255,255,255,0.04);
+  --glass:       rgba(255,255,255,0.06);
+  --border:      rgba(255,255,255,0.09);
+  --cyan:        #00d4ff;
+  --cyan-dim:    rgba(0,212,255,0.15);
+  --purple:      #a855f7;
+  --gold:        #f59e0b;
+  --red:         #ef4444;
+  --green:       #22c55e;
+  --fg:          #e2e8f0;
+  --muted:       #64748b;
+  --input-bg:    rgba(255,255,255,0.05);
+  --radius:      14px;
+  --shadow:      0 8px 32px rgba(0,0,0,0.5);
+  --glow-cyan:   0 0 20px rgba(0,212,255,0.3);
+}
+
+/* ── Background gradient ────────────────────────────────────── */
+body {
+  background: radial-gradient(ellipse at 20% 0%, rgba(0,212,255,0.07) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 100%, rgba(168,85,247,0.06) 0%, transparent 60%),
+              var(--bg) !important;
+}
+
+/* ── Animated mesh background ───────────────────────────────── */
+body::before {
+  content:'';
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridDrift 30s linear infinite;
+}
+@keyframes gridDrift { 0%{background-position:0 0,0 0} 100%{background-position:60px 60px,60px 60px} }
+
+/* ── Sidebar premium glass ──────────────────────────────────── */
+.sidebar {
+  background: rgba(7,8,15,0.85) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border-right: 1px solid rgba(0,212,255,0.12) !important;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.4) !important;
+}
+
+/* ── Titlebar upgrade ───────────────────────────────────────── */
+.titlebar {
+  background: rgba(7,8,15,0.9) !important;
+  border-bottom: 1px solid rgba(0,212,255,0.1) !important;
+  backdrop-filter: blur(16px);
+}
+
+/* ── Logo glow ──────────────────────────────────────────────── */
+.tb-logo { letter-spacing: 1px; }
+.tb-k {
+  background: linear-gradient(135deg, #00d4ff, #a855f7) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  filter: drop-shadow(0 0 8px rgba(0,212,255,0.5));
+  font-size: 1.3em !important;
+}
+
+/* ── Nav buttons premium ────────────────────────────────────── */
+.nav-btn {
+  border-radius: 10px !important;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1) !important;
+  letter-spacing: 0.3px;
+  position: relative;
+  overflow: hidden;
+}
+.nav-btn::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(0,212,255,0.06), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.4s;
+}
+.nav-btn:hover::before { transform: translateX(100%); }
+.nav-btn.active {
+  background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(168,85,247,0.1)) !important;
+  border-left: 3px solid var(--cyan) !important;
+  color: var(--cyan) !important;
+  box-shadow: inset 0 0 20px rgba(0,212,255,0.08) !important;
+}
+
+/* ── Orb mega-upgrade ───────────────────────────────────────── */
+.orb-core {
+  background: radial-gradient(circle at 35% 35%,
+    rgba(0,212,255,0.4),
+    rgba(168,85,247,0.3),
+    rgba(7,8,15,0.9)) !important;
+  border: 1.5px solid rgba(0,212,255,0.4) !important;
+  box-shadow: 0 0 30px rgba(0,212,255,0.25), inset 0 0 20px rgba(0,212,255,0.08) !important;
+  transition: all 0.3s !important;
+}
+.orb-core:hover {
+  box-shadow: 0 0 50px rgba(0,212,255,0.4), inset 0 0 30px rgba(0,212,255,0.15) !important;
+  transform: scale(1.04) !important;
+}
+.orb-core.listening {
+  border-color: var(--green) !important;
+  box-shadow: 0 0 40px rgba(34,197,94,0.5), inset 0 0 20px rgba(34,197,94,0.1) !important;
+  animation: orbPulse 1s ease-in-out infinite alternate !important;
+}
+.orb-core.speaking {
+  border-color: var(--cyan) !important;
+  box-shadow: 0 0 60px rgba(0,212,255,0.5), inset 0 0 30px rgba(0,212,255,0.12) !important;
+  animation: orbSpeak 0.5s ease-in-out infinite alternate !important;
+}
+.orb-core.thinking {
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 40px rgba(245,158,11,0.4), inset 0 0 20px rgba(245,158,11,0.08) !important;
+  animation: orbThink 1.5s linear infinite !important;
+}
+@keyframes orbPulse { from{transform:scale(1)} to{transform:scale(1.06)} }
+@keyframes orbSpeak { from{box-shadow:0 0 40px rgba(0,212,255,0.4)} to{box-shadow:0 0 80px rgba(0,212,255,0.7)} }
+@keyframes orbThink { 0%{filter:hue-rotate(0deg)} 100%{filter:hue-rotate(360deg)} }
+
+/* ── Orb rings upgraded ─────────────────────────────────────── */
+.orb-ring {
+  border: 1px solid rgba(0,212,255,0.2) !important;
+  box-shadow: 0 0 10px rgba(0,212,255,0.1) !important;
+}
+.r1 { animation-duration: 3s !important; }
+.r2 { border-color: rgba(168,85,247,0.15) !important; animation-duration: 5s !important; }
+.r3 { border-color: rgba(245,158,11,0.1) !important; animation-duration: 8s !important; }
+
+/* ── Chat bubbles full redesign ─────────────────────────────── */
+.msg { margin-bottom: 18px !important; animation: msgSlide 0.3s ease !important; }
+@keyframes msgSlide { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+.msg-bubble {
+  max-width: 82% !important;
+  border-radius: 18px !important;
+  padding: 14px 18px !important;
+  line-height: 1.7 !important;
+  font-size: 13.5px !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3) !important;
+  position: relative;
+}
+
+/* User bubble */
+.msg.user .msg-bubble {
+  background: linear-gradient(135deg, rgba(0,212,255,0.18), rgba(168,85,247,0.12)) !important;
+  border: 1px solid rgba(0,212,255,0.25) !important;
+  border-bottom-right-radius: 4px !important;
+  margin-left: auto;
+}
+
+/* AI bubble */
+.msg.KHALLYBEST .msg-bubble, .msg.ai .msg-bubble {
+  background: rgba(255,255,255,0.04) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-bottom-left-radius: 4px !important;
+  backdrop-filter: blur(8px);
+}
+.msg.KHALLYBEST .msg-bubble:hover, .msg.ai .msg-bubble:hover {
+  border-color: rgba(0,212,255,0.2) !important;
+}
+
+/* Sender name + avatar */
+.msg-sender {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  margin-bottom: 5px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+.msg.KHALLYBEST .msg-sender, .msg.ai .msg-sender {
+  color: var(--cyan) !important;
+}
+.msg.KHALLYBEST .msg-sender::before {
+  content: 'K';
+  display: inline-flex;
+  width: 18px; height: 18px;
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 900;
+  color: #000;
+  flex-shrink: 0;
+}
+.msg.user .msg-sender { color: rgba(255,255,255,0.4) !important; }
+
+/* Timestamp */
+.msg-ts {
+  display: block !important;
+  font-size: 10px !important;
+  color: var(--muted) !important;
+  margin-top: 6px !important;
+  text-align: right;
+}
+
+/* ── Input area glow ────────────────────────────────────────── */
+.input-area, .input-bar {
+  background: rgba(7,8,15,0.8) !important;
+  border-top: 1px solid rgba(0,212,255,0.1) !important;
+  backdrop-filter: blur(16px) !important;
+}
+.text-input, #textInput {
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 12px !important;
+  color: var(--fg) !important;
+  padding: 12px 16px !important;
+  font-size: 14px !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+.text-input:focus, #textInput:focus {
+  border-color: rgba(0,212,255,0.4) !important;
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.08), var(--glow-cyan) !important;
+  outline: none !important;
+}
+
+/* ── Buttons system ─────────────────────────────────────────── */
+.tb-btn {
+  border-radius: 10px !important;
+  padding: 7px 14px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border: 1px solid var(--border) !important;
+  background: var(--surface) !important;
+  color: var(--fg) !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.tb-btn:hover { border-color: var(--cyan) !important; color: var(--cyan) !important; transform: translateY(-1px); }
+.tb-btn.cyan  { background: rgba(0,212,255,0.12) !important; border-color: rgba(0,212,255,0.3) !important; color: var(--cyan) !important; }
+.tb-btn.cyan:hover { background: rgba(0,212,255,0.22) !important; box-shadow: var(--glow-cyan) !important; }
+
+/* ── Panel header upgrade ───────────────────────────────────── */
+.panel-header {
+  background: linear-gradient(90deg, rgba(0,212,255,0.08), transparent) !important;
+  border-bottom: 1px solid rgba(0,212,255,0.12) !important;
+  color: var(--fg) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  padding: 16px 20px !important;
+  letter-spacing: 0.5px;
+}
+.panel-header span { margin-right: 8px; }
+
+/* ── Settings cards ─────────────────────────────────────────── */
+.settings-card {
+  background: rgba(255,255,255,0.03) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: var(--radius) !important;
+  padding: 16px !important;
+  margin: 0 !important;
+  transition: border-color 0.2s !important;
+}
+.settings-card:hover { border-color: rgba(0,212,255,0.15) !important; }
+.settings-card-title {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: var(--cyan) !important;
+  letter-spacing: 0.8px !important;
+  text-transform: uppercase !important;
+  margin-bottom: 12px !important;
+}
+
+/* ── Voice biometrics card ──────────────────────────────────── */
+.voice-bio-card {
+  border: 1px solid rgba(0,212,255,0.2) !important;
+  background: linear-gradient(135deg, rgba(0,212,255,0.04), rgba(168,85,247,0.03)) !important;
+  position: relative; overflow: hidden;
+}
+.voice-bio-card::before {
+  content: '🔐';
+  position: absolute; right: 16px; top: 16px;
+  font-size: 36px; opacity: 0.08;
+  pointer-events: none;
+}
+.voice-bio-desc { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+.enroll-row { margin-bottom: 10px; }
+.enroll-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.4px;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+  color: var(--muted);
+}
+.enroll-badge.enrolled {
+  background: rgba(34,197,94,0.12) !important;
+  border-color: rgba(34,197,94,0.3) !important;
+  color: var(--green) !important;
+}
+.enroll-steps { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.enroll-step { font-size: 11px; color: var(--muted); padding: 3px 0; }
+.enroll-status {
+  font-size: 12px; color: var(--cyan); font-style: italic;
+  padding: 8px 12px; background: rgba(0,212,255,0.06);
+  border-radius: 8px; border: 1px solid rgba(0,212,255,0.1);
+  margin-top: 6px; min-height: 36px;
+  transition: all 0.3s;
+}
+
+/* ── Typing indicator upgrade ───────────────────────────────── */
+.typing-bubble { display:flex; align-items:center; gap:6px; padding:12px 16px; }
+.typing-bubble .td {
+  width:8px; height:8px; border-radius:50%;
+  animation: tdPop 1.4s ease-in-out infinite;
+}
+.td:nth-child(1) { background:var(--cyan);  animation-delay:0s; }
+.td:nth-child(2) { background:var(--purple); animation-delay:.2s; }
+.td:nth-child(3) { background:var(--gold);   animation-delay:.4s; }
+@keyframes tdPop {
+  0%,60%,100% { transform:scale(0.6); opacity:.3; }
+  30%          { transform:scale(1.2); opacity:1; }
+}
+
+/* ── Waveform bars upgrade ──────────────────────────────────── */
+.waveform.active .bar {
+  background: linear-gradient(to top, var(--cyan), var(--purple)) !important;
+  box-shadow: 0 0 6px rgba(0,212,255,0.4) !important;
+}
+
+/* ── Wake word btn ──────────────────────────────────────────── */
+.wake-btn {
+  border-radius: 10px !important;
+  background: rgba(0,212,255,0.07) !important;
+  border: 1px solid rgba(0,212,255,0.2) !important;
+  color: var(--muted) !important;
+  font-size: 11px !important;
+  padding: 7px 10px !important;
+  transition: all 0.2s !important;
+}
+.wake-btn.active {
+  background: rgba(0,212,255,0.15) !important;
+  border-color: var(--cyan) !important;
+  color: var(--cyan) !important;
+  box-shadow: var(--glow-cyan) !important;
+  animation: wakeGlow 2s ease-in-out infinite alternate !important;
+}
+@keyframes wakeGlow {
+  from { box-shadow: 0 0 8px rgba(0,212,255,0.2); }
+  to   { box-shadow: 0 0 20px rgba(0,212,255,0.5); }
+}
+
+/* ── Status dot ─────────────────────────────────────────────── */
+.status-dot {
+  width: 8px !important; height: 8px !important;
+  border-radius: 50% !important;
+  background: var(--muted) !important;
+  transition: all 0.3s !important;
+}
+.status-dot.listening { background: var(--green) !important; box-shadow: 0 0 8px var(--green) !important; }
+.status-dot.thinking  { background: var(--gold)  !important; box-shadow: 0 0 8px var(--gold)  !important; }
+.status-dot.speaking  { background: var(--cyan)  !important; box-shadow: 0 0 8px var(--cyan)  !important; }
+
+/* ── Code blocks ────────────────────────────────────────────── */
+.code-block-wrap {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  margin: 10px 0 !important;
+}
+.code-block-header {
+  background: rgba(255,255,255,0.06) !important;
+  padding: 8px 14px !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+/* ── Scrollbars ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,212,255,0.4); }
+
+/* ── Panel transitions ──────────────────────────────────────── */
+.panel { animation: panelFade 0.28s cubic-bezier(0.4,0,0.2,1) !important; }
+@keyframes panelFade { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── Mobile sidebar toggle ──────────────────────────────────── */
+.sidebar-toggle {
+  background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(168,85,247,0.1)) !important;
+  border: 1px solid rgba(0,212,255,0.25) !important;
+  border-radius: 10px !important;
+  color: var(--cyan) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+}
+
+/* ── Counter badge ──────────────────────────────────────────── */
+.msg-counter {
+  background: linear-gradient(135deg, var(--cyan-dim), rgba(168,85,247,0.12)) !important;
+  border: 1px solid rgba(0,212,255,0.2) !important;
+  border-radius: 20px !important;
+  font-size: 10px !important;
+  padding: 2px 10px !important;
+  color: var(--cyan) !important;
+}
+
