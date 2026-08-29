@@ -260,6 +260,25 @@
           </div>
         </div>
 
+        <!-- Voice Biometrics card -->
+        <div class="settings-card voice-bio-card">
+          <div class="settings-card-title">🔐 Voice Biometrics</div>
+          <div class="voice-bio-desc">Enroll your unique voice so only <strong>you</strong> can wake up KHALLYBEST. Say "Hey KHALLYBEST" clearly during enrollment.</div>
+          <div class="enroll-row">
+            <span class="enroll-badge" id="enrollBadge">⚪ Not Enrolled</span>
+          </div>
+          <div class="enroll-steps">
+            <div class="enroll-step">1️⃣ Click <strong>Enroll Voice</strong></div>
+            <div class="enroll-step">2️⃣ Say <em>"Hey KHALLYBEST"</em> 3 times when prompted</div>
+            <div class="enroll-step">3️⃣ Enable Wake Word in sidebar — only your voice activates it</div>
+          </div>
+          <div id="enrollStatus" class="enroll-status">Ready to enroll</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+            <button class="tb-btn cyan" id="enrollBtn" onclick="startVoiceEnrollment()">🎙️ Enroll Voice</button>
+            <button class="tb-btn" onclick="clearVoiceEnrollment()" style="color:var(--red)">🗑️ Clear</button>
+          </div>
+        </div>
+
         <div class="settings-card" style="flex:1;overflow-y:auto;">
           <div class="settings-card-title">🎙️ Available System Voices</div>
           <div id="voiceListInfo" style="font-size:12px;color:var(--muted);line-height:1.8;">Loading…</div>
@@ -386,6 +405,7 @@
   </div>
 
   <script src="config.js"></script>
+  <script src="voice.js"></script>
   <script src="features.js"></script>
   <script>
     // PDF.js worker setup
