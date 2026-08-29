@@ -424,6 +424,7 @@ function initNewFeatures() {
   loadNotes(); renderNotesList();
   loadChatSessions(); renderSessions();
   updateConvUnits();
+  if (typeof updateEnrollBadge === 'function') updateEnrollBadge();
   if ('Notification' in window && Notification.permission === 'default') {
     Notification.requestPermission();
   }
