@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- KHALLYBEST Web v4.0 — 2026-07-29 -->
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#050a15"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icon-192.svg"/>
+  <title>KHALLYBEST — AI Assistant</title>
+  <meta name="description" content="KHALLYBEST: Next-generation AI assistant by Spirit Airbone. Reminders, News, Notes, Calculator, Code, Search, Image generation, powered by Groq and LLaMA 3."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    /* Prevent pull-to-refresh only on the app container, not system-level */
+    html { overscroll-behavior-y: contain; }
+  </style>
+  <!-- PDF.js for PDF reading -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+  <canvas id="starfield"></canvas>
+
+  <!-- ── ONBOARDING MODAL ── -->
+  <div class="onboard-modal" id="onboardModal">
+    <div class="onboard-card">
+      <div class="onboard-logo"><span class="tb-k">K</span>HALLYBEST</div>
+      <div class="onboard-title">Welcome! 👋</div>
+      <div class="onboard-sub">Let me personalize your experience</div>
+      <div class="onboard-field">
+        <label for="onboardName">👤 Your name</label>
+        <input type="text" id="onboardName" class="onboard-input" placeholder="e.g. Marshall" autocomplete="given-name"/>
+      </div>
+      <div class="onboard-field">
+        <label for="onboardCity">🌍 Your city (for weather)</label>
+        <input type="text" id="onboardCity" class="onboard-input" placeholder="e.g. Lagos" autocomplete="address-level2"/>
+      </div>
+      <button class="onboard-btn" onclick="completeOnboarding()">🚀 Let's Go!</button>
+      <div class="onboard-skip" onclick="completeOnboarding()">Skip for now</div>
+    </div>
+  </div>
+
+  <!-- ── FILE DROP OVERLAY ── -->
+  <div class="drop-overlay" id="dropOverlay">
+    <div class="drop-inner">
+      <div class="drop-icon">📂</div>
+      <div class="drop-title">DROP YOUR FILE</div>
+      <div class="drop-sub">Text · Code · PDF · Images · CSV · JSON · and more</div>
+    </div>
+  </div>
+
+  <!-- ── HTML PREVIEW MODAL ── -->
+  <div class="preview-modal" id="previewModal">
+    <div class="preview-bar">
+      <span class="preview-title">🖥️ Live Preview</span>
+      <div class="preview-bar-actions">
+        <button class="preview-bar-btn" onclick="document.getElementById('previewFrame').srcdoc=document.getElementById('previewFrame').srcdoc">🔄 Reload</button>
+        <button class="preview-bar-btn close" onclick="closePreview()">&#x2715; Close</button>
+      </div>
+    </div>
+    <iframe id="previewFrame" class="preview-frame" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+  </div>
+
+  <!-- ── IMAGE FULLSCREEN MODAL ── -->
+  <div class="img-modal" id="imgModal" onclick="closeImgModal()">
+    <img id="imgModalImg" src="" alt="Generated image"/>
+    <div class="img-modal-hint">Click anywhere to close</div>
+  </div>
+
+  <!-- Mobile Sidebar Toggle -->
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
+
+  <div class="app">
+
+    <!-- ── TITLEBAR ── -->
+    <div class="titlebar" id="titlebar">
+      <div class="tb-logo"><span class="tb-k">K</span>HALLYBEST <span class="tb-ver" style="font-size:10px;opacity:.7">v4.0 WEB</span></div>
+      <div class="tb-drag"></div>
+      <div class="tb-controls">
+        <button class="tb-icon-btn" onclick="clearChat()" title="Clear chat">🗑️</button>
+        <button class="tb-icon-btn" onclick="exportChat()" title="Export chat">📤</button>
+        <a href="https://github.com" target="_blank" class="tb-link" title="GitHub">⬡</a>
+      </div>
+    </div>
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Orb -->
+      <div class="orb-wrap">
+        <div class="orb-ring r1"></div>
+        <div class="orb-ring r2"></div>
+        <div class="orb-ring r3"></div>
+        <div class="orb-core" id="orbCore" onclick="toggleListening()" title="Click to speak">
+          <span class="orb-letter">K</span>
+        </div>
+      </div>
+
+      <!-- Waveform -->
+      <div class="waveform" id="waveform">
+        <div class="wb" style="animation-delay:0.0s"></div>
+        <div class="wb" style="animation-delay:0.1s"></div>
+        <div class="wb" style="animation-delay:0.2s"></div>
+        <div class="wb" style="animation-delay:0.3s"></div>
+        <div class="wb" style="animation-delay:0.4s"></div>
+        <div class="wb" style="animation-delay:0.3s"></div>
+        <div class="wb" style="animation-delay:0.2s"></div>
+        <div class="wb" style="animation-delay:0.1s"></div>
+        <div class="wb" style="animation-delay:0.0s"></div>
+      </div>
+
+      <p class="orb-hint" id="orbHint">TAP ORB TO SPEAK</p>
+
+      <!-- Status pill -->
+      <div class="status-pill">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">IDLE</span>
+      </div>
+
+      <!-- Message counter -->
+      <div class="msg-counter" id="msgCounter">0 messages</div>
+
+      <!-- Nav -->
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" onclick="switchPanel('chat');closeSidebarMobile()"     id="navChat">💬 Assistant</button>
+        <button class="nav-btn"        onclick="switchPanel('code');closeSidebarMobile()"     id="navCode">🖥️ Code Studio</button>
+        <button class="nav-btn"        onclick="switchPanel('tasks');closeSidebarMobile()"    id="navTasks">📋 Tasks</button>
+        <button class="nav-btn"        onclick="switchPanel('news');closeSidebarMobile()"     id="navNews">📰 News</button>
+        <button class="nav-btn"        onclick="switchPanel('notes');closeSidebarMobile()"    id="navNotes">📝 Notes</button>
+        <button class="nav-btn"        onclick="switchPanel('calc');closeSidebarMobile()"     id="navCalc">🔢 Calc</button>
+        <button class="nav-btn"        onclick="switchPanel('sessions');closeSidebarMobile()" id="navSessions">💾 Sessions</button>
+        <button class="nav-btn"        onclick="switchPanel('settings');closeSidebarMobile()" id="navSettings">⚙️ Settings</button>
+      </nav>
+
+      <!-- Language -->
+      <select id="langSelect" class="lang-sel" aria-label="Language">
+        <option value="en-US">🇬🇧 English</option>
+        <option value="ha">🇳🇬 Hausa</option>
+        <option value="yo">🇳🇬 Yoruba</option>
+        <option value="ig">🇳🇬 Igbo</option>
+      </select>
+
+      <!-- Web badge -->
+      <div class="sys-badge" id="sysBadge">🌐 KHALLYBEST Web<br/>🤖 LLaMA 3 · Groq<br/>🎙️ Browser Voice</div>
+
+      <!-- Theme Switcher -->
+      <div class="theme-row">
+        <button class="theme-dot active" data-theme="cyan"   onclick="setTheme('cyan')"   title="Cyan"></button>
+        <button class="theme-dot"        data-theme="purple" onclick="setTheme('purple')" title="Purple"></button>
+        <button class="theme-dot"        data-theme="gold"   onclick="setTheme('gold')"   title="Gold"></button>
+        <button class="theme-dot"        data-theme="emerald" onclick="setTheme('emerald')" title="Emerald"></button>
+      </div>
+
+      <!-- Wake Word Toggle -->
+      <button class="wake-btn" id="wakeBtn" onclick="toggleWakeWord()" title='Say "Hey KHALLYBEST" to activate'>
+        👂 Wake Word
+      </button>
+
+      <!-- Creator badge -->
+      <div class="creator-badge">✨ by <strong>Spirit Airbone</strong></div>
+
+      <!-- Mic button -->
+      <button class="mic-btn" id="micBtn" onclick="toggleListening()" aria-label="Voice input">🎙️<div class="mic-ripple"></div></button>
+    </aside>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main class="content">
+
+      <!-- CHAT PANEL -->
+      <section class="panel" id="panelChat">
+        <div class="panel-header">
+          <span>💬</span> AI Assistant
+          <!-- Hidden file input -->
+          <input type="file" id="fileInput" multiple accept="*/*" style="display:none" onchange="handleFileInputChange(event)"/>
+          <button class="tb-btn attach-btn" onclick="document.getElementById('fileInput').click()" title="Attach file">📎 Attach</button>
+        </div>
+        <div class="quick-row">
+          <button class="qb" onclick="quickCommand('What time is it?')">🕐 Time</button>
+          <button class="qb" onclick="quickCommand('What is today\'s date?')">📅 Date</button>
+          <button class="qb" onclick="quickCommand('Tell me a joke')">😂 Joke</button>
+          <button class="qb" onclick="quickCommand('Inspire me')">💪 Inspire</button>
+          <button class="qb" onclick="quickCommand('What is the weather in Lagos?')">🌤️ Weather</button>
+          <button class="qb" onclick="quickCommand('What is the Bitcoin price?')">₿ Crypto</button>
+          <button class="qb" onclick="quickCommand('Search Google for latest AI news')">🔍 Search</button>
+          <button class="qb" onclick="quickCommand('Generate an image of a futuristic city at night with neon lights')">🎨 Image</button>
+          <button class="qb" onclick="quickCommand('Who created you?')">🤖 Creator</button>
+          <button class="qb" onclick="switchPanel('code')">🖥️ Code</button>
+        </div>
+        <div class="chat-log" id="chatLog" role="log" aria-live="polite"></div>
+        <div class="chat-input-row">
+          <input type="text" id="textInput" placeholder="Ask anything, drop a file, or request code…" autocomplete="off" inputmode="text"/>
+          <button class="send-btn" onclick="sendText()" aria-label="Send">➤</button>
+        </div>
+      </section>
+
+      <!-- CODE STUDIO PANEL -->
+      <section class="panel hidden" id="panelCode">
+        <div class="panel-header"><span>🖥️</span> Code Studio — Vibe Coding</div>
+        <div class="code-studio-desc">
+          Ask KHALLYBEST to write code, build a full website, or vibe-code something amazing. Drop a code file to analyze it.
+        </div>
+        <div class="code-quick-row">
+          <button class="qb code-qb" onclick="quickCodeRequest('Write a complete dark neon landing page HTML with animations')">🌐 Neon Website</button>
+          <button class="qb code-qb" onclick="quickCodeRequest('Write a Python script to scrape website data with requests and BeautifulSoup')">🐍 Python Scraper</button>
+          <button class="qb code-qb" onclick="quickCodeRequest('Build a JavaScript todo app with localStorage and dark UI')">📝 JS Todo App</button>
+          <button class="qb code-qb" onclick="quickCodeRequest('Create a glassmorphism login page in HTML CSS with blur effects')">🪟 Glass Login</button>
+          <button class="qb code-qb" onclick="quickCodeRequest('Write a REST API in Node.js with Express and JSON routes')">⚙️ Node API</button>
+          <button class="qb code-qb" onclick="quickCodeRequest('Create a React dashboard component with charts and dark theme')">📊 React Dashboard</button>
+          <button class="qb code-qb" onclick="quickCodeRequest('Write CSS for a futuristic sci-fi button with neon glow animation')">✨ Sci-Fi CSS</button>
+          <button class="qb code-qb" onclick="quickCodeRequest('Build a mobile-responsive navbar in HTML CSS JS with hamburger menu')">📱 Mobile Nav</button>
+          <button class="qb code-qb" onclick="quickCodeRequest('Write a Python FastAPI backend with CRUD routes and SQLite')">🐍 FastAPI</button>
+          <button class="qb code-qb" onclick="quickCodeRequest('Create a full e-commerce product card component in HTML CSS')">🛒 Product Card</button>
+        </div>
+        <div class="code-request-row">
+          <input type="text" id="codeRequestInput" placeholder="Describe what you want built… e.g. 'vibe code a sci-fi portfolio'" autocomplete="off"/>
+          <button class="tb-btn cyan" onclick="sendCodeRequest()">🚀 Build It</button>
+        </div>
+        <div class="code-hint">💡 Results appear in the <strong>Assistant</strong> tab with a copy button. Drop a file here or in chat to have it analyzed.</div>
+      </section>
+
+      <!-- SETTINGS PANEL -->
+      <section class="panel hidden" id="panelSettings">
+        <div class="panel-header"><span>⚙️</span> Voice &amp; Settings</div>
+
+        <div class="settings-card">
+          <div class="settings-card-title">🔑 API Configuration</div>
+          <div class="settings-row">
+            <label for="apiKeyInput">Groq API Key</label>
+            <input type="password" id="apiKeyInput" class="settings-input" placeholder="gsk_…" autocomplete="off"/>
+          </div>
+          <button class="tb-btn cyan" onclick="saveApiKey()" style="margin-top:6px;">💾 Save Key</button>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-title">🔊 TTS Voice</div>
+          <div class="settings-row">
+            <label for="voiceSelect">Speaking Voice</label>
+            <select id="voiceSelect" class="settings-select">
+              <option value="">⏳ Loading voices…</option>
+            </select>
+          </div>
+          <div class="settings-row">
+            <label for="pitchRange">Pitch <span id="pitchVal">0.85</span></label>
+            <input type="range" id="pitchRange" min="0.1" max="2" step="0.05" value="0.85" class="settings-slider" oninput="document.getElementById('pitchVal').textContent=this.value"/>
+          </div>
+          <div class="settings-row">
+            <label for="rateRange">Speed <span id="rateVal">0.92</span></label>
+            <input type="range" id="rateRange" min="0.3" max="2" step="0.05" value="0.92" class="settings-slider" oninput="document.getElementById('rateVal').textContent=this.value"/>
+          </div>
+          <div class="settings-row">
+            <label for="volRange">Volume <span id="volVal">1.0</span></label>
+            <input type="range" id="volRange" min="0" max="1" step="0.05" value="1.0" class="settings-slider" oninput="document.getElementById('volVal').textContent=parseFloat(this.value).toFixed(2)"/>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;">
+            <button class="tb-btn cyan" onclick="testVoice()">🔊 Test Voice</button>
+            <button class="tb-btn" onclick="saveVoiceSettings()">💾 Save</button>
+          </div>
+        </div>
+
+        <!-- Voice Biometrics card -->
+        <div class="settings-card voice-bio-card">
+          <div class="settings-card-title">🔐 Voice Biometrics</div>
+          <div class="voice-bio-desc">Enroll your unique voice so only <strong>you</strong> can wake up KHALLYBEST. Say "Hey KHALLYBEST" clearly during enrollment.</div>
+          <div class="enroll-row">
+            <span class="enroll-badge" id="enrollBadge">⚪ Not Enrolled</span>
+          </div>
+          <div class="enroll-steps">
+            <div class="enroll-step">1️⃣ Click <strong>Enroll Voice</strong></div>
+            <div class="enroll-step">2️⃣ Say <em>"Hey KHALLYBEST"</em> 3 times when prompted</div>
+            <div class="enroll-step">3️⃣ Enable Wake Word in sidebar — only your voice activates it</div>
+          </div>
+          <div id="enrollStatus" class="enroll-status">Ready to enroll</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+            <button class="tb-btn cyan" id="enrollBtn" onclick="startVoiceEnrollment()">🎙️ Enroll Voice</button>
+            <button class="tb-btn" onclick="clearVoiceEnrollment()" style="color:var(--red)">🗑️ Clear</button>
+          </div>
+        </div>
+
+        <div class="settings-card" style="flex:1;overflow-y:auto;">
+          <div class="settings-card-title">🎙️ Available System Voices</div>
+          <div id="voiceListInfo" style="font-size:12px;color:var(--muted);line-height:1.8;">Loading…</div>
+        </div>
+      </section>
+
+      <!-- TASKS PANEL -->
+      <section class="panel hidden" id="panelTasks">
+        <div class="panel-header"><span>📋</span> Smart Reminders &amp; Tasks</div>
+        <div class="task-toolbar">
+          <input type="text" id="taskInput" placeholder="Add a task or reminder…" autocomplete="off" />
+          <input type="datetime-local" id="taskTime" />
+          <select id="taskPriority">
+            <option value="normal">🔵 Normal</option>
+            <option value="high">🔴 High</option>
+            <option value="low">🟢 Low</option>
+          </select>
+          <button class="tb-btn cyan" onclick="addTask()">➕ Add</button>
+        </div>
+        <div class="task-list" id="taskList"><p class="ph">No tasks yet. Add one above!</p></div>
+      </section>
+
+      <!-- NEWS PANEL -->
+      <section class="panel hidden" id="panelNews">
+        <div class="panel-header"><span>📰</span> Live News Feed</div>
+        <div class="news-cats">
+          <button class="news-cat active" onclick="loadNews('general',this)">🌍 Top</button>
+          <button class="news-cat" onclick="loadNews('technology',this)">💻 Tech</button>
+          <button class="news-cat" onclick="loadNews('business',this)">📊 Business</button>
+          <button class="news-cat" onclick="loadNews('sports',this)">⚽ Sports</button>
+          <button class="news-cat" onclick="loadNews('health',this)">❤️ Health</button>
+          <button class="news-cat" onclick="loadNews('entertainment',this)">🎬 Ent</button>
+          <button class="tb-btn" style="margin-left:auto" onclick="loadNews(currentNewsCat)">🔄 Refresh</button>
+        </div>
+        <div class="news-grid" id="newsGrid"><p class="ph">Click a category to load headlines</p></div>
+      </section>
+
+      <!-- NOTES PANEL -->
+      <section class="panel hidden" id="panelNotes">
+        <div class="panel-header"><span>📝</span> Notes &amp; Scratch Pad</div>
+        <div class="notes-layout">
+          <div class="notes-sidebar">
+            <button class="tb-btn cyan" onclick="createNote()" style="width:100%;margin-bottom:8px">➕ New Note</button>
+            <div class="notes-list" id="notesList"></div>
+          </div>
+          <div class="notes-main">
+            <input type="text" id="noteTitleInput" placeholder="Note title…" class="note-title-input" />
+            <div class="note-actions">
+              <button class="tb-btn cyan" onclick="aiPolishNote()">✨ AI Polish</button>
+              <button class="tb-btn" onclick="aiSummarizeNote()">📄 Summarize</button>
+              <button class="tb-btn" onclick="aiTranslateNote()">🌍 Translate</button>
+              <button class="tb-btn green" onclick="exportNote()">💾 Export</button>
+              <button class="tb-btn" onclick="deleteCurrentNote()" style="margin-left:auto;color:var(--red)">🗑️ Delete</button>
+            </div>
+            <textarea id="noteEditor" class="note-editor" placeholder="Start writing…"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- CALCULATOR PANEL -->
+      <section class="panel hidden" id="panelCalc">
+        <div class="panel-header"><span>🔢</span> Calculator &amp; Converter</div>
+        <div class="calc-layout">
+          <div class="calc-box">
+            <div class="calc-display" id="calcDisplay">0</div>
+            <div class="calc-expr" id="calcExpr"></div>
+            <div class="calc-grid">
+              <button class="cb sp2" onclick="calcClear()">AC</button>
+              <button class="cb" onclick="calcInput('(')">( </button>
+              <button class="cb" onclick="calcInput(')')"> )</button>
+              <button class="cb op" onclick="calcInput('/')">&divide;</button>
+              <button class="cb" onclick="calcInput('7')">7</button>
+              <button class="cb" onclick="calcInput('8')">8</button>
+              <button class="cb" onclick="calcInput('9')">9</button>
+              <button class="cb op" onclick="calcInput('*')">&times;</button>
+              <button class="cb" onclick="calcInput('4')">4</button>
+              <button class="cb" onclick="calcInput('5')">5</button>
+              <button class="cb" onclick="calcInput('6')">6</button>
+              <button class="cb op" onclick="calcInput('-')">-</button>
+              <button class="cb" onclick="calcInput('1')">1</button>
+              <button class="cb" onclick="calcInput('2')">2</button>
+              <button class="cb" onclick="calcInput('3')">3</button>
+              <button class="cb op" onclick="calcInput('+')">+</button>
+              <button class="cb" onclick="calcInput('0')">0</button>
+              <button class="cb" onclick="calcInput('.')">.</button>
+              <button class="cb" onclick="calcBackspace()">⌫</button>
+              <button class="cb eq" onclick="calcEval()">=</button>
+            </div>
+          </div>
+          <div class="conv-box">
+            <div class="conv-title">Unit Converter</div>
+            <select id="convType" onchange="updateConvUnits()">
+              <option value="temp">🌡️ Temperature</option>
+              <option value="length">📏 Length</option>
+              <option value="weight">⚖️ Weight</option>
+              <option value="currency">💱 Currency</option>
+            </select>
+            <div class="conv-row">
+              <input type="number" id="convFrom" placeholder="0" oninput="doConvert()" />
+              <select id="convFromUnit" onchange="doConvert()"></select>
+            </div>
+            <div class="conv-eq">=</div>
+            <div class="conv-row">
+              <input type="number" id="convTo" placeholder="0" readonly />
+              <select id="convToUnit" onchange="doConvert()"></select>
+            </div>
+            <button class="tb-btn cyan" style="margin-top:10px;width:100%" onclick="doConvert()">🔄 Convert</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SESSIONS PANEL -->
+      <section class="panel hidden" id="panelSessions">
+        <div class="panel-header"><span>💾</span> Chat Sessions</div>
+        <div class="sessions-toolbar">
+          <input type="text" id="sessionNameInput" placeholder="Session name…" />
+          <button class="tb-btn cyan" onclick="saveSession()">💾 Save Current</button>
+          <button class="tb-btn" onclick="renderSessions()">🔄 Refresh</button>
+        </div>
+        <div class="sessions-list" id="sessionsList"><p class="ph">No saved sessions yet.</p></div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="voice.js"></script>
+  <script src="features.js"></script>
+  <script>
+    // PDF.js worker setup
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+    // Code Studio helpers
+    function quickCodeRequest(prompt) { switchPanel('chat'); processInput(prompt); }
+    function sendCodeRequest() {
+      const inp = document.getElementById('codeRequestInput');
+      const v = inp?.value.trim(); if (!v) return;
+      inp.value = ''; switchPanel('chat'); processInput(v);
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const ci = document.getElementById('codeRequestInput');
+      if (ci) ci.addEventListener('keydown', e => { if(e.key==='Enter') sendCodeRequest(); });
+    });
+    function closeSidebarMobile() {
+      if (window.innerWidth < 768) document.querySelector('.sidebar').classList.remove('open');
+    }
+    function handleFileInputChange(e) {
+      const files = Array.from(e.target.files);
+      if (files.length) handleFiles(files);
+      e.target.value = '';
+    }
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>

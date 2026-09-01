@@ -1,0 +1,69 @@
+﻿{
+  "name": "KHALLYBEST",
+  "version": "2.0.0",
+  "description": "KHALLYBEST - Your Personal AI Desktop Assistant",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "dist": "electron-builder --win"
+  },
+  "keywords": [
+    "ai",
+    "assistant",
+    "jarvis",
+    "KHALLYBEST"
+  ],
+  "author": "KHALLYBEST Dev",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "open": "^10.1.0"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.KHALLYBEST.desktop",
+    "productName": "KHALLYBEST",
+    "copyright": "© 2026 KHALLYBEST",
+    "directories": {
+      "output": "dist-build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "assets/**/*",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "KHALLYBEST"
+    }
+  }
+}

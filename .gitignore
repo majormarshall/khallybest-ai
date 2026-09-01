@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# API Keys — NEVER commit these
+# (Update renderer/config.js with your own key after cloning)
+# renderer/config.js  ← Uncomment this line if you want to hide the key
+
+# Electron build output
+dist/
+out/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+
+dist-build/
+dist/
+out/
